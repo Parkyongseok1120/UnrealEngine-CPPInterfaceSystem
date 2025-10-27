@@ -1,13 +1,19 @@
 ﻿#include "Character/PlayerCharacterCore.h"
 #include <algorithm>
-
+#include <ThirdParty/OpenColorIO/Deploy/OpenColorIO-2.2.0/include/OpenColorIO/OpenColorIO.h>
 
 using namespace std;
 
+/*
+ * Unreal 프로젝트의 PlayerCharacter에 의해 관리됨.
+ * 메모리 관리에서 Controller는 소유하지 않고 약참조.
+ */
+
 namespace CPPCore
 {
-	PlayerCharacterCore::PlayerCharacterCore(ICharacterController* InController)
+	PlayerCharacterCore::PlayerCharacterCore(ICharacterController* InController, const CharacterStatsConfig& InConfig)
 		: Controller(InController),
+		Config(InConfig),
 		bIsSprinting(false),
 		bIsZooming(false),
 		CurrentJumpCount(0),
@@ -15,15 +21,15 @@ namespace CPPCore
 		bWasGrounded(true),
 		SprintStaminaTimer(0.0f)
 	{
-		Health = make_unique<HealthSystem>(Stats.MaxHealth);
-		Stamina = make_unique<StaminaSystem>(Stats.MaxStamina);
+		Health = make_unique<HealthSystem>(Config.MaxHealth);
+		Stamina = make_unique<StaminaSystem>(Config.MaxStamina);
 
 		if (Controller)
 		{
-			Controller->SetMovementSpeed(Stats.WalkSpeed);
-			Controller->SetCameraFOV(Stats.DefaultFOV);
+			Controller->SetMovementSpeed(Config.WalkSpeed);
+			Controller->SetCameraFOV(Config.DefaultFOV);
 			LastPosition = Controller->GetPosition();
-			CurrentFOV = Stats.DefaultFOV;
+			CurrentFOV = Config.DefaultFOV;
 		}
 	}
 	
@@ -150,7 +156,7 @@ namespace CPPCore
 		if (!Controller)
 			return false;
 
-		return Controller->IsGrounded() || CurrentJumpCount < Stats.MaxJumpCount;
+		return Controller->IsGrounded() || CurrentJumpCount < Config.MaxJumpCount;
 	}
 
 
@@ -185,7 +191,7 @@ namespace CPPCore
 	{
 		if (Controller)
 		{
-			float TargetSpeed = bIsSprinting ? Stats.SprintSpeed : Stats.WalkSpeed;
+			float TargetSpeed = bIsSprinting ? Config.SprintSpeed : Config.WalkSpeed;
 			Controller->SetMovementSpeed(TargetSpeed);
 		}
 	}
@@ -194,10 +200,10 @@ namespace CPPCore
 	{
 		if (Controller)
 		{
-			float TargetFOV = bIsZooming ? Stats.ZoomedFOV : Stats.DefaultFOV;
+			float TargetFOV = bIsZooming ? Config.ZoomedFOV : Config.DefaultFOV;
 
 			//스무스한 FOV 보간
-			float Alpha = min(1.0f, DeltaTime * Stats.ZoomInterpSpeed);
+			float Alpha = min(1.0f, DeltaTime * Config.ZoomInterpSpeed);
 			CurrentFOV = CurrentFOV + (TargetFOV - CurrentFOV) * Alpha;
 
 			Controller->SetCameraFOV(CurrentFOV);
@@ -236,7 +242,7 @@ namespace CPPCore
 			// 0.1초마다 스태미나 사용구현
 			if (SprintStaminaTimer >= 0.1f)
 			{
-				Stamina->UseStamina(Stats.SprintStaminaCost * 0.1f);
+				Stamina->UseStamina(Config.SprintStaminaCost * 0.1f);
 				SprintStaminaTimer = 0.0f;
 
 				//스태미나가 없다면 달리기 중지

@@ -7,11 +7,10 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "PlayerCharacter_DataAsset.h"
 #include "Kismet/GameplayStatics.h"
 
 ACPlayerCharacter::ACPlayerCharacter()
-    : CharacterCore(nullptr)
-    , CharacterController(nullptr)
 {
     GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
     bUseControllerRotationPitch = false;
@@ -54,6 +53,17 @@ void ACPlayerCharacter::BeginPlay()
         }
     }
 
+    CPPCore::CharacterStatsConfig Config;
+    if (StatsAsset.IsValid())
+    {
+        Config = StatsAsset.Get()->ToCore();
+        UE_LOG(LogTemp, Log, TEXT("캐릭터 스탯 데이터 에셋 로딩 : %s"), *StatsAsset->GetName());
+    }
+    else
+    {
+        UE_LOG(LogTemp, Warning, TEXT("캐릭터 스탯 데이터 에셋이 설정되지 않았음. 기본값 사용."));
+    }
+
     if (!CharacterController.IsValid())
     {
         CharacterController = MakeUnique<FUnrealCharacterController>(this, FollowCamera);
@@ -61,7 +71,7 @@ void ACPlayerCharacter::BeginPlay()
 
     if (!CharacterCore.IsValid())
     {
-        CharacterCore = MakeUnique<CPPCore::PlayerCharacterCore>(CharacterController.Get());
+        CharacterCore = MakeUnique<CPPCore::PlayerCharacterCore>(CharacterController.Get(), Config);
 
         CharacterCore->OnPositionChanged = [this](CPPCore::Vector3 NewPos) { OnCore_PositionChanged(NewPos); };
         CharacterCore->OnSprintStateChanged = [this](bool bSprint) { OnCore_SprintStateChanged(bSprint); };
@@ -76,6 +86,8 @@ void ACPlayerCharacter::BeginPlay()
         CharacterCore->GetStaminaSystem()->OnStaminaChanged = [this](float Old, float New) { OnCore_StaminaChanged(Old, New); };
         CharacterCore->GetStaminaSystem()->OnStaminaDepleted = [this]() { OnCore_StaminaDepleted(); };
     }
+
+   
 }
 
 void ACPlayerCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -106,9 +118,15 @@ void ACPlayerCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
         CharacterCore.Reset();
         CharacterController.Reset();
     }
-
+    
+    if (UEnhancedInputComponent* EIC = Cast<UEnhancedInputComponent>(InputComponent))
+    {
+        EIC->ClearActionBindings();
+        UE_LOG(LogTemp, Verbose, TEXT("ACPlayerCharacter::EndPlay - 입력 바인딩 해제"));
+    }
+    
     Super::EndPlay(EndPlayReason);
-
+    UE_LOG(LogTemp, Verbose, TEXT("ACPlayerCharacter::EndPlay - 해제 완료."));
 }
 
 void ACPlayerCharacter::Tick(float DeltaTime)
@@ -140,69 +158,55 @@ void ACPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 
 void ACPlayerCharacter::Input_Move(const FInputActionValue& Value)
 {
-    if (CharacterCore && Controller)
-    {
-     
-        FVector2D MovementVector = Value.Get<FVector2D>();
-        CharacterCore->HandleMoveInput(CPPCore::Vector2(MovementVector.X, MovementVector.Y));
-    }
+    if (!CharacterCore) return;
+    
+    FVector2D MovementVector = Value.Get<FVector2D>();
+    CharacterCore->HandleMoveInput(CPPCore::Vector2(MovementVector.X, MovementVector.Y));
 }
 
 void ACPlayerCharacter::Input_Look(const FInputActionValue& Value)
 {
-    if (CharacterCore && Controller)
-    {
-        FVector2D LookAxisVector = Value.Get<FVector2D>();
-        CharacterCore->HandleLookInput(CPPCore::Vector2(LookAxisVector.X, LookAxisVector.Y));
-    }
+    if (!CharacterCore) return;
+    
+    FVector2D LookAxisVector = Value.Get<FVector2D>();
+    CharacterCore->HandleLookInput(CPPCore::Vector2(LookAxisVector.X, LookAxisVector.Y));
 }
 
 void ACPlayerCharacter::Input_Jump(const FInputActionValue& Value)
 {
-    if (CharacterCore)
-    {
-        CharacterCore->HandleJumpInput();
-    }
+    if (!CharacterCore) return;
+    CharacterCore->HandleJumpInput();
 }
 
 void ACPlayerCharacter::Input_Sprint_Started(const FInputActionValue& Value)
 {
-    if (CharacterCore)
-    {
-        CharacterCore->HandleSprintStart();
-    }
+    if (!CharacterCore) return;
+    CharacterCore->HandleSprintStart();
 }
 
 void ACPlayerCharacter::Input_Sprint_Completed(const FInputActionValue& Value)
 {
-    if (CharacterCore)
-    {
-        CharacterCore->HandleSprintEnd();
-    }
+    if (!CharacterCore) return;
+    CharacterCore->HandleSprintEnd();
+    
 }
 
 void ACPlayerCharacter::Input_Zoom_Started(const FInputActionValue& Value)
 {
-    if (CharacterCore)
-    {
-        CharacterCore->HandleZoomStart();
-    }
+    if (!CharacterCore) return;
+    CharacterCore->HandleZoomStart();
 }
 
 void ACPlayerCharacter::Input_Zoom_Completed(const FInputActionValue& Value)
 {
-    if (CharacterCore)
-    {
-        CharacterCore->HandleZoomEnd();
-    }
+    if (!CharacterCore) return;
+    CharacterCore->HandleZoomEnd();
 }
 
 void ACPlayerCharacter::Input_Attack(const FInputActionValue& Value)
 {
-    if (CharacterCore)
-    {
-        CharacterCore->HandleAttackInput();
-    }
+    if (!CharacterCore) return;
+    CharacterCore->HandleAttackInput();
 }
 
 void ACPlayerCharacter::OnCore_PositionChanged(CPPCore::Vector3 NewPosition)
@@ -260,7 +264,7 @@ void ACPlayerCharacter::OnCore_StaminaChanged(float OldStamina, float NewStamina
 
 void ACPlayerCharacter::OnCore_StaminaDepleted()
 {
-    // Handle stamina depletion (e.g., play exhausted animation)
+    //스태미나 고갈시 로직(피로 상태 이펙트 등)
 }
 
 bool ACPlayerCharacter::IsSprinting() const

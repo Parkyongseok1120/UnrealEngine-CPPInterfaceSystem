@@ -15,6 +15,7 @@ class UInputMappingContext;
 class UInputAction;
 class UCharacterStatsDataAsset;
 class CPPCore::PlayerCharacterCore;
+class UPlayerCharacter_DataAsset;
 class FUnrealCharacterController;
 
 UCLASS()
@@ -27,14 +28,10 @@ public:
     ACPlayerCharacter();
     virtual ~ACPlayerCharacter() override;
 
-    // Called every frame
     virtual void Tick(float DeltaTime) override;
-
-    // Called to bind functionality to input
     virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 protected:
-    // Called when the game starts or when spawned
     virtual void BeginPlay() override;
     virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
@@ -62,8 +59,8 @@ protected:
 
     //==================Config(DataAsset)========================
 
-    //UPROPERTY(EditAnyWhere, BlueprintReadOnly, Category = "Input")
-    //UCharacterStatsDataAsset* StatsAsset;
+    UPROPERTY(EditAnyWhere, BlueprintReadOnly, Category = "Config|Stats")
+    TWeakObjectPtr<UPlayerCharacter_DataAsset> StatsAsset;
 
     // ==================Components======================
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
@@ -140,7 +137,7 @@ public:
     FOnStaminaChangedSignature OnStaminaChanged;
 
 private:
-    // ============== Core 기능 ====================
+    // ============== Core 기능 (약참조)====================
     TUniquePtr<CPPCore::PlayerCharacterCore> CharacterCore;
     TUniquePtr<FUnrealCharacterController> CharacterController;
 	

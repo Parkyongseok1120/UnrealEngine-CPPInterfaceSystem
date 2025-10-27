@@ -1,6 +1,6 @@
 ﻿#pragma once
 #include "ICharacterController.h"
-#include "CharacterStats.h"
+#include "CharacterStatsConfig.h"
 #include "../Math/MathTypes.h"
 #include "../Health/HealthSystem.h"
 #include "../Stamina/StaminaSystem.h"
@@ -10,13 +10,19 @@
 
 using namespace std;
 
+/*
+ * Unreal 프로젝트의 PlayerCharacter에 의해 관리됨.
+ * 메모리 관리에서 Controller는 소유하지 않고 약참조.
+ * 생성자는 config를 매개변수로 받게 됨.
+ * Controller의 라이프타임은 해당 객체의 생명주기보다는 길어야 함.
+ */
 namespace CPPCore
 {
 	class CPPINTERFACECORE_API PlayerCharacterCore
 	{
 	public:
 
-		explicit PlayerCharacterCore(ICharacterController* InController);
+		explicit PlayerCharacterCore(ICharacterController* InController, const CharacterStatsConfig& InConfig);
 
 		~PlayerCharacterCore();
 
@@ -56,7 +62,7 @@ namespace CPPCore
 		unique_ptr<HealthSystem> Health;
 		unique_ptr<StaminaSystem> Stamina;
 
-		CharacterStats Stats;
+		CharacterStatsConfig Config;
 
 		bool bIsSprinting;
 		bool bIsZooming;
