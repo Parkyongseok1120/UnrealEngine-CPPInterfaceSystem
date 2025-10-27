@@ -1,9 +1,9 @@
-﻿#include "StaminaSystem.h"
+﻿#include "Stamina/StaminaSystem.h"
 #include <algorithm>
 
 using namespace std;
 
-namespace Core
+namespace CPPCore
 {
 	StaminaSystem::StaminaSystem(float MaxStaminaValue)
 			: MaxStamina(MaxStaminaValue),

@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "../Math/MathTypes.h"
 
-namespace Core
+namespace CPPCore
 {
 	struct ICharacterController
 	{

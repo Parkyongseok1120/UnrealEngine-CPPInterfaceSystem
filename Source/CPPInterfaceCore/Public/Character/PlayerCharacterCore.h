@@ -10,9 +10,9 @@
 
 using namespace std;
 
-namespace Core
+namespace CPPCore
 {
-	class PlayerCharacterCore
+	class CPPINTERFACECORE_API PlayerCharacterCore
 	{
 	public:
 

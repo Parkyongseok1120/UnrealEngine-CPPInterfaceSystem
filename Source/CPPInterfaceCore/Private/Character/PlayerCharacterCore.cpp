@@ -1,10 +1,10 @@
-﻿#include "PlayerCharacterCore.h"
+﻿#include "Character/PlayerCharacterCore.h"
 #include <algorithm>
 
 
 using namespace std;
 
-namespace Core
+namespace CPPCore
 {
 	PlayerCharacterCore::PlayerCharacterCore(ICharacterController* InController)
 		: Controller(InController),

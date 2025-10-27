@@ -4,7 +4,7 @@
 #include <iostream>
 using namespace std;
 
-namespace Core
+namespace CPPCore
 {
 	struct Vector2
 	{

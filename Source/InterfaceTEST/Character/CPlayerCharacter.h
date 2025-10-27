@@ -3,7 +3,8 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "InputActionValue.h"
-#include "../Core/Character/PlayerCharacterCore.h"
+#include "Character/PlayerCharacterCore.h"
+#include "UnrealCharacterController.h" 
 
 #include "CPlayerCharacter.generated.h"
 
@@ -13,7 +14,7 @@ class USpringArmComponent;
 class UInputMappingContext;
 class UInputAction;
 class UCharacterStatsDataAsset;
-class Core::PlayerCharacterCore;
+class CPPCore::PlayerCharacterCore;
 class FUnrealCharacterController;
 
 UCLASS()
@@ -82,7 +83,7 @@ protected:
     void Input_Attack(const FInputActionValue& Value);
 
     // ===============Core event handlers=======================
-    void OnCore_PositionChanged(Core::Vector3 NewPosition);
+    void OnCore_PositionChanged(CPPCore::Vector3 NewPosition);
     void OnCore_SprintStateChanged(bool bIsSprinting);
     void OnCore_ZoomStateChanged(bool bIsZooming);
     void OnCore_Jumped();
@@ -140,7 +141,7 @@ public:
 
 private:
     // ============== Core 기능 ====================
-    TUniquePtr<Core::PlayerCharacterCore> CharacterCore;
+    TUniquePtr<CPPCore::PlayerCharacterCore> CharacterCore;
     TUniquePtr<FUnrealCharacterController> CharacterController;
 	
 };

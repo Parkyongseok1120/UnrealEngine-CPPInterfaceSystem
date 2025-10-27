@@ -1,6 +1,6 @@
 #include "CPlayerCharacter.h"
 #include "UnrealCharacterController.h"
-#include "../Core/Character/PlayerCharacterCore.h"
+#include "Character/PlayerCharacterCore.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -54,16 +54,16 @@ void ACPlayerCharacter::BeginPlay()
         }
     }
 
-    if (CharacterController.IsValid())
+    if (!CharacterController.IsValid())
     {
         CharacterController = MakeUnique<FUnrealCharacterController>(this, FollowCamera);
     }
 
-    if (CharacterCore.IsValid())
+    if (!CharacterCore.IsValid())
     {
-        CharacterCore = MakeUnique<Core::PlayerCharacterCore>(CharacterController.Get());
+        CharacterCore = MakeUnique<CPPCore::PlayerCharacterCore>(CharacterController.Get());
 
-        CharacterCore->OnPositionChanged = [this](Core::Vector3 NewPos) { OnCore_PositionChanged(NewPos); };
+        CharacterCore->OnPositionChanged = [this](CPPCore::Vector3 NewPos) { OnCore_PositionChanged(NewPos); };
         CharacterCore->OnSprintStateChanged = [this](bool bSprint) { OnCore_SprintStateChanged(bSprint); };
         CharacterCore->OnZoomStateChanged = [this](bool bZoom) { OnCore_ZoomStateChanged(bZoom); };
         CharacterCore->OnJumped = [this]() { OnCore_Jumped(); };
@@ -115,7 +115,7 @@ void ACPlayerCharacter::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
 
-    if (CharacterCore.IsValid())
+    if (!CharacterCore.IsValid())
     {
         CharacterCore->Update(DeltaTime);
     }
@@ -144,7 +144,7 @@ void ACPlayerCharacter::Input_Move(const FInputActionValue& Value)
     {
      
         FVector2D MovementVector = Value.Get<FVector2D>();
-        CharacterCore->HandleMoveInput(Core::Vector2(MovementVector.X, MovementVector.Y));
+        CharacterCore->HandleMoveInput(CPPCore::Vector2(MovementVector.X, MovementVector.Y));
     }
 }
 
@@ -153,7 +153,7 @@ void ACPlayerCharacter::Input_Look(const FInputActionValue& Value)
     if (CharacterCore && Controller)
     {
         FVector2D LookAxisVector = Value.Get<FVector2D>();
-        CharacterCore->HandleLookInput(Core::Vector2(LookAxisVector.X, LookAxisVector.Y));
+        CharacterCore->HandleLookInput(CPPCore::Vector2(LookAxisVector.X, LookAxisVector.Y));
     }
 }
 
@@ -205,7 +205,7 @@ void ACPlayerCharacter::Input_Attack(const FInputActionValue& Value)
     }
 }
 
-void ACPlayerCharacter::OnCore_PositionChanged(Core::Vector3 NewPosition)
+void ACPlayerCharacter::OnCore_PositionChanged(CPPCore::Vector3 NewPosition)
 {
     //발소리 같은 위치기반 이벤트 트리거
 }

@@ -1,39 +1,39 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "../Core/Character/ICharacterController.h"
+#include "Character/ICharacterController.h"
 
 class ACharacter;
 class UCameraComponent;
 
-class FUnrealCharacterController : public Core::ICharacterController
+class FUnrealCharacterController : public CPPCore::ICharacterController
 {
 public:
 	FUnrealCharacterController(ACharacter* InCharacter, UCameraComponent * InCamera);
 	
-	virtual void AddMovementInput(const Core::Vector3& Direction, float Scale) override;
+	virtual void AddMovementInput(const CPPCore::Vector3& Direction, float Scale) override;
 	virtual void Jump() override;
 	virtual bool IsGrounded() const override;
 	virtual void SetMovementSpeed(float Speed) override;
 
-	virtual void SetPosition(const Core::Vector3& Position) override;
-	virtual Core::Vector3 GetPosition() const override;
-	virtual void SetRotation(const Core::Vector3& Rotation) override;
-	virtual Core::Vector3 GetRotation() const override;
+	virtual void SetPosition(const CPPCore::Vector3& Position) override;
+	virtual CPPCore::Vector3 GetPosition() const override;
+	virtual void SetRotation(const CPPCore::Vector3& Rotation) override;
+	virtual CPPCore::Vector3 GetRotation() const override;
 
 
 	virtual void SetCameraFOV(float FOV) override;
 	virtual float GetCameraFOV() const override;
-	virtual Core::Vector3 GetCameraLocation() const override;
-    virtual Core::Vector3 GetCameraForward() const override;
-	virtual Core::Vector3 GetCameraRight() const override;
+	virtual CPPCore::Vector3 GetCameraLocation() const override;
+    virtual CPPCore::Vector3 GetCameraForward() const override;
+	virtual CPPCore::Vector3 GetCameraRight() const override;
 
 private:
 	ACharacter* Character;
 	UCameraComponent* Camera;
 
-	FVector ToUnrealVector(const Core::Vector3& Vector) const;
-	Core::Vector3 FromUnrealVector(const FVector& Vector)const;
-	FRotator ToUnrealRotator(const Core::Vector3& PitchYawRoll) const;
-	Core::Vector3 FromUnrealRotator(const FRotator& Rotator)const;
+	FVector ToUnrealVector(const CPPCore::Vector3& Vector) const;
+	CPPCore::Vector3 FromUnrealVector(const FVector& Vector)const;
+	FRotator ToUnrealRotator(const CPPCore::Vector3& PitchYawRoll) const;
+	CPPCore::Vector3 FromUnrealRotator(const FRotator& Rotator)const;
 };

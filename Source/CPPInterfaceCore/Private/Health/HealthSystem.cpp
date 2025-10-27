@@ -1,7 +1,7 @@
-﻿#include "HealthSystem.h"
+﻿#include "Health/HealthSystem.h"
 #include <algorithm>
 
-namespace Core
+namespace CPPCore
 {
 	HealthSystem::HealthSystem(int32_t MaxHealthValue) : MaxHealth(MaxHealthValue), CurrentHealth(MaxHealthValue)
 	{

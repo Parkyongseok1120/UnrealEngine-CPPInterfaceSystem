@@ -7,6 +7,7 @@ public class InterfaceTEST : ModuleRules
 {
 	public InterfaceTEST(ReadOnlyTargetRules Target) : base(Target)
 	{
+		PublicIncludePaths.Add(ModuleDirectory);
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
 		PublicDependencyModuleNames.AddRange(new string[] 
@@ -21,6 +22,7 @@ public class InterfaceTEST : ModuleRules
 
 		PublicIncludePaths.AddRange(new string[] { });
 
+		PublicIncludePaths.Add(ModuleDirectory + "/../CPPInterfaceCore/Public");
 
 
     }

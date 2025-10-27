@@ -4,9 +4,9 @@
 
 using namespace std;
 
-namespace Core
+namespace CPPCore
 {
-	class HealthSystem
+	class CPPINTERFACECORE_API HealthSystem
 	{
 	public:
 		HealthSystem(int32_t MaxHealthValue = 100);

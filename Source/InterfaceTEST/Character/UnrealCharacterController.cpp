@@ -11,7 +11,7 @@ FUnrealCharacterController::FUnrealCharacterController(ACharacter* InCharacter, 
 {
 }
 
-void FUnrealCharacterController::AddMovementInput(const Core::Vector3& Direction, float Scale)
+void FUnrealCharacterController::AddMovementInput(const CPPCore::Vector3& Direction, float Scale)
 {
     if (Character)
     {
@@ -44,7 +44,7 @@ void FUnrealCharacterController::SetMovementSpeed(float Speed)
     }
 }
 
-void FUnrealCharacterController::SetPosition(const Core::Vector3& Position)
+void FUnrealCharacterController::SetPosition(const CPPCore::Vector3& Position)
 {
     if (Character)
     {
@@ -52,16 +52,16 @@ void FUnrealCharacterController::SetPosition(const Core::Vector3& Position)
     }
 }
 
-Core::Vector3 FUnrealCharacterController::GetPosition() const
+CPPCore::Vector3 FUnrealCharacterController::GetPosition() const
 {
     if (Character)
     {
         return FromUnrealVector(Character->GetActorLocation());
     }
-    return Core::Vector3();
+    return CPPCore::Vector3();
 }
 
-void FUnrealCharacterController::SetRotation(const Core::Vector3& Rotation)
+void FUnrealCharacterController::SetRotation(const CPPCore::Vector3& Rotation)
 {
     if (Character && Character->Controller)
     {
@@ -69,13 +69,13 @@ void FUnrealCharacterController::SetRotation(const Core::Vector3& Rotation)
     }
 }
 
-Core::Vector3 FUnrealCharacterController::GetRotation() const
+CPPCore::Vector3 FUnrealCharacterController::GetRotation() const
 {
     if (Character && Character->Controller)
     {
         return FromUnrealRotator(Character->Controller->GetControlRotation());
     }
-    return Core::Vector3();
+    return CPPCore::Vector3();
 }
 
 void FUnrealCharacterController::SetCameraFOV(float FOV)
@@ -91,50 +91,50 @@ float FUnrealCharacterController::GetCameraFOV() const
     return Camera ? Camera->FieldOfView : 90.0f;
 }
 
-Core::Vector3 FUnrealCharacterController::GetCameraLocation() const
+CPPCore::Vector3 FUnrealCharacterController::GetCameraLocation() const
 {
     if (Camera)
     {
         return FromUnrealVector(Camera->GetComponentLocation());
     }
-    return Core::Vector3();
+    return CPPCore::Vector3();
 }
 
-Core::Vector3 FUnrealCharacterController::GetCameraForward() const
+CPPCore::Vector3 FUnrealCharacterController::GetCameraForward() const
 {
     if (Camera)
     {
         return FromUnrealVector(Camera->GetForwardVector());
     }
-    return Core::Vector3(1, 0, 0);
+    return CPPCore::Vector3(1, 0, 0);
 }
 
-Core::Vector3 FUnrealCharacterController::GetCameraRight() const
+CPPCore::Vector3 FUnrealCharacterController::GetCameraRight() const
 {
     if (Camera)
     {
         return FromUnrealVector(Camera->GetRightVector());
     }
-    return Core::Vector3(0, 1, 0);
+    return CPPCore::Vector3(0, 1, 0);
 }
 
-FVector FUnrealCharacterController::ToUnrealVector(const Core::Vector3& Vector) const
+FVector FUnrealCharacterController::ToUnrealVector(const CPPCore::Vector3& Vector) const
 {
     return FVector(Vector.X, Vector.Y, Vector.Z);
 }
 
-Core::Vector3 FUnrealCharacterController::FromUnrealVector(const FVector& Vector) const
+CPPCore::Vector3 FUnrealCharacterController::FromUnrealVector(const FVector& Vector) const
 {
-    return Core::Vector3(Vector.X, Vector.Y, Vector.Z);
+    return CPPCore::Vector3(Vector.X, Vector.Y, Vector.Z);
 }
 
-FRotator FUnrealCharacterController::ToUnrealRotator(const Core::Vector3& PitchYawRoll) const
+FRotator FUnrealCharacterController::ToUnrealRotator(const CPPCore::Vector3& PitchYawRoll) const
 {
     // Core::Vector3에서 사용. (Pitch, Yaw, Roll) 순서.
     return FRotator(PitchYawRoll.X, PitchYawRoll.Y, PitchYawRoll.Z);
 }
 
-Core::Vector3 FUnrealCharacterController::FromUnrealRotator(const FRotator& Rotator) const
+CPPCore::Vector3 FUnrealCharacterController::FromUnrealRotator(const FRotator& Rotator) const
 {
-    return Core::Vector3(Rotator.Pitch, Rotator.Yaw, Rotator.Roll);
+    return CPPCore::Vector3(Rotator.Pitch, Rotator.Yaw, Rotator.Roll);
 }

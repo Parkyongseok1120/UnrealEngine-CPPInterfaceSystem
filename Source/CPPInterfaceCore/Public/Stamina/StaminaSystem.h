@@ -4,9 +4,9 @@
 
 using namespace std;
 
-namespace Core
+namespace CPPCore
 {
-	class StaminaSystem
+	class CPPINTERFACECORE_API StaminaSystem
 	{
 	public:
 		StaminaSystem(float MaxStaminaValue = 100.0f);
