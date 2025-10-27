@@ -39,8 +39,7 @@ ACPlayerCharacter::ACPlayerCharacter()
 
 ACPlayerCharacter::~ACPlayerCharacter()
 {
-    delete CharacterCore;
-    delete CharacterController;
+   //TUniquePtr은 자동으로 해제하므로 따로넣지 않음.
 }
 
 void ACPlayerCharacter::BeginPlay()
@@ -55,28 +54,68 @@ void ACPlayerCharacter::BeginPlay()
         }
     }
 
-    CharacterController = new FUnrealCharacterController(this, FollowCamera);
-    CharacterCore = new Core::PlayerCharacterCore(CharacterController);
+    if (CharacterController.IsValid())
+    {
+        CharacterController = MakeUnique<FUnrealCharacterController>(this, FollowCamera);
+    }
 
-    CharacterCore->OnPositionChanged = [this](Core::Vector3 NewPos) { OnCore_PositionChanged(NewPos); };
-    CharacterCore->OnSprintStateChanged = [this](bool bSprint) { OnCore_SprintStateChanged(bSprint); };
-    CharacterCore->OnZoomStateChanged = [this](bool bZoom) { OnCore_ZoomStateChanged(bZoom); };
-    CharacterCore->OnJumped = [this]() { OnCore_Jumped(); };
-    CharacterCore->OnLanded = [this]() { OnCore_Landed(); };
-    CharacterCore->OnAttack = [this]() { OnCore_Attack(); };
+    if (CharacterCore.IsValid())
+    {
+        CharacterCore = MakeUnique<Core::PlayerCharacterCore>(CharacterController.Get());
 
-    CharacterCore->GetHealthSystem()->OnHealthChanged = [this](int32 Old, int32 New) { OnCore_HealthChanged(Old, New); };
-    CharacterCore->GetHealthSystem()->OnDeath = [this]() { OnCore_Death(); };
+        CharacterCore->OnPositionChanged = [this](Core::Vector3 NewPos) { OnCore_PositionChanged(NewPos); };
+        CharacterCore->OnSprintStateChanged = [this](bool bSprint) { OnCore_SprintStateChanged(bSprint); };
+        CharacterCore->OnZoomStateChanged = [this](bool bZoom) { OnCore_ZoomStateChanged(bZoom); };
+        CharacterCore->OnJumped = [this]() { OnCore_Jumped(); };
+        CharacterCore->OnLanded = [this]() { OnCore_Landed(); };
+        CharacterCore->OnAttack = [this]() { OnCore_Attack(); };
 
-    CharacterCore->GetStaminaSystem()->OnStaminaChanged = [this](float Old, float New) { OnCore_StaminaChanged(Old, New); };
-    CharacterCore->GetStaminaSystem()->OnStaminaDepleted = [this]() { OnCore_StaminaDepleted(); };
+        CharacterCore->GetHealthSystem()->OnHealthChanged = [this](int32 Old, int32 New) { OnCore_HealthChanged(Old, New); };
+        CharacterCore->GetHealthSystem()->OnDeath = [this]() { OnCore_Death(); };
+
+        CharacterCore->GetStaminaSystem()->OnStaminaChanged = [this](float Old, float New) { OnCore_StaminaChanged(Old, New); };
+        CharacterCore->GetStaminaSystem()->OnStaminaDepleted = [this]() { OnCore_StaminaDepleted(); };
+    }
+}
+
+void ACPlayerCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+    UE_LOG(LogTemp, Verbose, TEXT("ACPlayerChracter::EndPlay 델리게이트 및 코어 오브젝트 해제"));
+
+    if (CharacterCore.IsValid())
+    {
+        CharacterCore->OnPositionChanged = nullptr;
+        CharacterCore->OnSprintStateChanged = nullptr;
+        CharacterCore->OnZoomStateChanged = nullptr;
+        CharacterCore->OnJumped = nullptr;
+        CharacterCore->OnLanded = nullptr;
+        CharacterCore->OnAttack = nullptr;
+
+        if (CharacterCore->GetHealthSystem())
+        {
+            CharacterCore->GetHealthSystem()->OnHealthChanged = nullptr;
+            CharacterCore->GetHealthSystem()->OnDeath = nullptr;
+        }
+
+        if (CharacterCore->GetStaminaSystem())
+        {
+            CharacterCore->GetStaminaSystem()->OnStaminaChanged = nullptr;
+            CharacterCore->GetStaminaSystem()->OnStaminaDepleted = nullptr;
+        }
+
+        CharacterCore.Reset();
+        CharacterController.Reset();
+    }
+
+    Super::EndPlay(EndPlayReason);
+
 }
 
 void ACPlayerCharacter::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
 
-    if (CharacterCore)
+    if (CharacterCore.IsValid())
     {
         CharacterCore->Update(DeltaTime);
     }

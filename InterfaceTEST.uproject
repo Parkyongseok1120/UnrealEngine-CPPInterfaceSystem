@@ -8,6 +8,11 @@
 			"Name": "InterfaceTEST",
 			"Type": "Runtime",
 			"LoadingPhase": "Default"
+		},
+		{
+			"Name": "CPPInterfaceCore",
+			"Type": "Runtime",
+			"LoadingPhase": "PreDefault"
 		}
 	],
 	"Plugins": [

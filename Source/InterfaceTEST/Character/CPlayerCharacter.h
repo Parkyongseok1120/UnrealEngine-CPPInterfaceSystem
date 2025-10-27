@@ -12,6 +12,7 @@ class UCameraComponent;
 class USpringArmComponent;
 class UInputMappingContext;
 class UInputAction;
+class UCharacterStatsDataAsset;
 class Core::PlayerCharacterCore;
 class FUnrealCharacterController;
 
@@ -23,7 +24,7 @@ public:
 
 public:
     ACPlayerCharacter();
-    virtual ~ACPlayerCharacter();
+    virtual ~ACPlayerCharacter() override;
 
     // Called every frame
     virtual void Tick(float DeltaTime) override;
@@ -34,6 +35,7 @@ public:
 protected:
     // Called when the game starts or when spawned
     virtual void BeginPlay() override;
+    virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
     // ===========Input============
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
@@ -56,6 +58,11 @@ protected:
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
     UInputAction* AttackAction;
+
+    //==================Config(DataAsset)========================
+
+    //UPROPERTY(EditAnyWhere, BlueprintReadOnly, Category = "Input")
+    //UCharacterStatsDataAsset* StatsAsset;
 
     // ==================Components======================
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
@@ -133,7 +140,7 @@ public:
 
 private:
     // ============== Core 기능 ====================
-    Core::PlayerCharacterCore* CharacterCore;
-    FUnrealCharacterController* CharacterController;
+    TUniquePtr<Core::PlayerCharacterCore> CharacterCore;
+    TUniquePtr<FUnrealCharacterController> CharacterController;
 	
 };

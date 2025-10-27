@@ -2,20 +2,26 @@
 
 using UnrealBuildTool;
 
+
 public class InterfaceTEST : ModuleRules
 {
 	public InterfaceTEST(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput" });
-		
-		PublicIncludePaths.AddRange(new string[] {
-			ModuleDirectory + "/Core",
+		PublicDependencyModuleNames.AddRange(new string[] 
+		{ 
+			"Core", 
+			"CoreUObject", 
+			"Engine", 
+			"InputCore", 
+			"EnhancedInput", 
+			"CPPInterfaceCore"
 		});
 
-		PrivateIncludePaths.AddRange(new string[] {
-			ModuleDirectory + "/Core",
-		});
-	}
+		PublicIncludePaths.AddRange(new string[] { });
+
+
+
+    }
 }
