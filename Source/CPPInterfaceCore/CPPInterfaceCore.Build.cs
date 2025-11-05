@@ -14,7 +14,19 @@ public class CPPInterfaceCore : ModuleRules
 	        "Core",
         });
         
-        PrivateDependencyModuleNames.Clear();
+        if (Target.Configuration != UnrealTargetConfiguration.Shipping)
+        {
+	        PublicDependencyModuleNames.Add("CoreUObject");
+    
+	        PrivateDependencyModuleNames.AddRange(new string[]
+	        {
+		        "AutomationController",
+	        });
+        }
+        else
+        {
+	        PrivateDependencyModuleNames.Clear();
+        }
         
         bEnableExceptions = true;
         CppStandard = CppStandardVersion.Cpp17; 

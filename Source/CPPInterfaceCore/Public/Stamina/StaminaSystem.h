@@ -18,6 +18,9 @@ namespace CPPCore
 		float GetCurrentStamina() const {return CurrentStamina;}
 		float GetMaxStamina() const {return MaxStamina;}
 
+		void SetRegenRate(float NewRegenRate) {RegenRate = NewRegenRate;}
+
+
 		// Events
 		function<void(float, float)> OnStaminaChanged; // Old, New
 		function<void()> OnStaminaDepleted;

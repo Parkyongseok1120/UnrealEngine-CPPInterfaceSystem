@@ -5,7 +5,7 @@
 #include "InputActionValue.h"
 #include "Character/PlayerCharacterCore.h"
 #include "UnrealCharacterController.h" 
-
+#include "Public/Profiling/ProfilerMarkers.h"
 #include "CPlayerCharacter.generated.h"
 
 //전방 선언

@@ -23,7 +23,17 @@ public class InterfaceTEST : ModuleRules
 		PublicIncludePaths.AddRange(new string[] { });
 
 		PublicIncludePaths.Add(ModuleDirectory + "/../CPPInterfaceCore/Public");
+		
+		if (Target.Configuration != UnrealTargetConfiguration.Shipping)
+		{
+			PrivateDependencyModuleNames.AddRange(new string[]
+			{
+				"AutomationController",
+				"FunctionalTesting",
+			});
+		}
 
+		PrivateDependencyModuleNames.Add("TraceLog");
 
     }
 }

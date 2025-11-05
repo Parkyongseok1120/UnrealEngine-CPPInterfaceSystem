@@ -9,6 +9,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "PlayerCharacter_DataAsset.h"
 #include "Kismet/GameplayStatics.h"
+#include "Public/Profiling/ProfilerMarkers.h"
 
 ACPlayerCharacter::ACPlayerCharacter()
 {
@@ -131,6 +132,9 @@ void ACPlayerCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 void ACPlayerCharacter::Tick(float DeltaTime)
 {
+    //프로파일링
+    PROFILE_SCOPE_CHARACTER_TICK();
+    
     Super::Tick(DeltaTime);
 
     if (!CharacterCore.IsValid())
@@ -158,6 +162,7 @@ void ACPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 
 void ACPlayerCharacter::Input_Move(const FInputActionValue& Value)
 {
+    PROFILE_SCOPE_MOVEMENT();
     if (!CharacterCore) return;
     
     FVector2D MovementVector = Value.Get<FVector2D>();
@@ -174,8 +179,12 @@ void ACPlayerCharacter::Input_Look(const FInputActionValue& Value)
 
 void ACPlayerCharacter::Input_Jump(const FInputActionValue& Value)
 {
+    PROFILE_SCOPE_JUMP();
+    
     if (!CharacterCore) return;
     CharacterCore->HandleJumpInput();
+
+    PROFILE_BOOKMARK("PlayerJumped"); 
 }
 
 void ACPlayerCharacter::Input_Sprint_Started(const FInputActionValue& Value)
@@ -228,22 +237,29 @@ void ACPlayerCharacter::OnCore_ZoomStateChanged(bool bIsZooming)
 
 void ACPlayerCharacter::OnCore_Jumped()
 {
-    //점프 애니메이션이나 파티클 여기에
+    PROFILE_BOOKMARK("JumpAnimationStart"); 
+    //점프 애니메이션이나 파티클 
 }
 
 void ACPlayerCharacter::OnCore_Landed()
 {
-    //땅 밟았을때 애니메이션이나 이펙트 여기에.
+    //땅 밟았을때 애니메이션이나 이펙트
 }
 
 void ACPlayerCharacter::OnCore_Attack()
 {
-    // 공격시 로직, 애니메이션이나 소리
+    PROFILE_SCOPE_ATTACK();  
+    PROFILE_BOOKMARK("PlayerAttacked");
 }
 
 void ACPlayerCharacter::OnCore_HealthChanged(int32 OldHealth, int32 NewHealth)
 {
-    // 블루프린트에 브로드 캐스트(데미지 받을때 이펙트나 사운드여기다가 추가 가능.)
+    PROFILE_SCOPE_HEALTH(); 
+    
+    if (NewHealth < OldHealth)
+    {
+        PROFILE_BOOKMARK("PlayerDamaged"); 
+    }
     OnHealthChanged.Broadcast(OldHealth, NewHealth);
 }
 
@@ -264,8 +280,9 @@ void ACPlayerCharacter::OnCore_StaminaChanged(float OldStamina, float NewStamina
 
 void ACPlayerCharacter::OnCore_StaminaDepleted()
 {
-    //스태미나 고갈시 로직(피로 상태 이펙트 등)
-}
+    PROFILE_BOOKMARK("StaminaDepleted"); 
+    
+    UE_LOG(LogTemp, Warning, TEXT("Stamina 고갈됨!"));}
 
 bool ACPlayerCharacter::IsSprinting() const
 {
