@@ -2,6 +2,7 @@
 
 #include "InterfaceTESTGameMode.h"
 #include "InterfaceTESTCharacter.h"
+#include "LogTest/CTestCheatManager.h"
 #include "UObject/ConstructorHelpers.h"
 
 AInterfaceTESTGameMode::AInterfaceTESTGameMode()
@@ -11,5 +12,6 @@ AInterfaceTESTGameMode::AInterfaceTESTGameMode()
 	if (PlayerPawnBPClass.Class != NULL)
 	{
 		DefaultPawnClass = PlayerPawnBPClass.Class;
+		
 	}
 }

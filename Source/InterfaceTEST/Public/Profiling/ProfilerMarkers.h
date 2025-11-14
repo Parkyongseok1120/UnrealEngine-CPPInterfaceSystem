@@ -13,7 +13,7 @@ DECLARE_STATS_GROUP(TEXT("PostProcess"), STATGROUP_PostProcess, STATCAT_Advanced
 DECLARE_STATS_GROUP(TEXT("W2_Performance"), STATGROUP_W2Performance, STATCAT_Advanced);
 DECLARE_STATS_GROUP(TEXT("Health"), STATGROUP_Health, STATCAT_Advanced);  // Health 전용 그룹
 
-// ==================== Cycle Counters (기존) ====================
+// ==================== Cycle Counters ====================
 DECLARE_CYCLE_STAT(TEXT("Character Tick Total"), STAT_CharacterTick, STATGROUP_PlayerCharacter);
 DECLARE_CYCLE_STAT(TEXT("Core Update"), STAT_CoreUpdate, STATGROUP_PlayerCharacter);
 DECLARE_CYCLE_STAT(TEXT("Movement Processing"), STAT_MovementProcessing, STATGROUP_PlayerCharacter);
@@ -107,8 +107,7 @@ DECLARE_CYCLE_STAT(TEXT("W2 PostProcess Phase"), STAT_W2_PostProcessPhase, STATG
 #define PROFILE_UPDATE_DEATH_COUNT() \
     INC_DWORD_STAT(STAT_DeathCount)
 
-// ==================== W2 추가: 단계별 Profiler Macros ====================
-// Tick → Physics → Combat → PostProcess 단계별 추적
+// ==================== 단계별 Profiler Macros ====================
 
 #define PROFILE_SCOPE_W2_TICK() \
     SCOPE_CYCLE_COUNTER(STAT_W2_TickPhase); \
@@ -126,12 +125,10 @@ DECLARE_CYCLE_STAT(TEXT("W2 PostProcess Phase"), STAT_W2_PostProcessPhase, STATG
     SCOPE_CYCLE_COUNTER(STAT_W2_PostProcessPhase); \
     TRACE_CPUPROFILER_EVENT_SCOPE(W2_PostProcessPhase)
 
-// ==================== Bookmark Macros (기존) ====================
+// ==================== Bookmark Macros ====================
 #define PROFILE_BOOKMARK(Name) TRACE_BOOKMARK(TEXT(Name))
 
-// ==================== W2 추가: 단계별 Bookmark Macros ====================
-// 각 단계의 시작과 끝을 명확히 표시
-
+// ==================== 단계별 ====================
 #define PROFILE_W2_BOOKMARK_TICK_START() \
     TRACE_BOOKMARK(TEXT("W2_Tick_Start")); \
     UE_LOG(LogTemp, Verbose, TEXT("[W2 Profile] Tick 단계 시작"))
@@ -164,8 +161,7 @@ DECLARE_CYCLE_STAT(TEXT("W2 PostProcess Phase"), STAT_W2_PostProcessPhase, STATG
     TRACE_BOOKMARK(TEXT("W2_PostProcess_End")); \
     UE_LOG(LogTemp, Verbose, TEXT("[W2 Profile] PostProcess 단계 종료"))
 
-// ==================== W2 추가: 성능 측정 헬퍼 ====================
-// ms 단위 측정을 위한 타이머 헬퍼
+// ==================== 성능 측정 헬퍼 ====================
 
 #define PROFILE_W2_TIMER_START(TimerName) \
     double TimerName##_StartTime = FPlatformTime::Seconds()
@@ -177,8 +173,7 @@ DECLARE_CYCLE_STAT(TEXT("W2 PostProcess Phase"), STAT_W2_PostProcessPhase, STATG
         UE_LOG(LogTemp, Log, TEXT("[W2 Performance] %s: %.3f ms"), TEXT(PhaseName), TimerName##_Duration); \
     } while(0)
 
-// ==================== W2 추가: 이벤트 특화 북마크 ====================
-// 특정 이벤트 발생 시 명확한 마커
+// ==================== 이벤트 북마크 ====================
 
 #define PROFILE_W2_EVENT_DAMAGE_TAKEN() \
     TRACE_BOOKMARK(TEXT("W2_Event_DamageTaken")); \
@@ -214,7 +209,7 @@ DECLARE_CYCLE_STAT(TEXT("W2 PostProcess Phase"), STAT_W2_PostProcessPhase, STATG
 
 #else
 
-// 프로파일링 비활성화 시 빈 매크로
+// 프로파일링 비활성화 시 빈매크로
 #define PROFILE_SCOPE_CHARACTER_TICK()
 #define PROFILE_SCOPE_CORE_UPDATE()
 #define PROFILE_SCOPE_MOVEMENT()
@@ -235,7 +230,7 @@ DECLARE_CYCLE_STAT(TEXT("W2 PostProcess Phase"), STAT_W2_PostProcessPhase, STATG
 #define PROFILE_UPDATE_CURRENT_HEALTH(Health)
 #define PROFILE_UPDATE_DEATH_COUNT()
 
-// W2 매크로들도 비활성화
+
 #define PROFILE_SCOPE_W2_TICK()
 #define PROFILE_SCOPE_W2_PHYSICS()
 #define PROFILE_SCOPE_W2_COMBAT()

@@ -192,7 +192,6 @@ bool FHealthSystemUnitTest::RunTest(const FString& Parameters)
     int32 LastOldHealth = 0;
     int32 LastNewHealth = 0;
 
-    // 콜백 등록
     HealthSystem.OnHealthChanged = [&](int32 Old, int32 New) {
         bHealthChangedCalled = true;
         LastOldHealth = Old;
@@ -283,7 +282,6 @@ bool FStaminaSystemUnitTest::RunTest(const FString& Parameters)
     float LastOldStamina = 0.0f;
     float LastNewStamina = 0.0f;
 
-    // 콜백 등록
     StaminaSystem.OnStaminaChanged = [&](float Old, float New) {
         bStaminaChangedCalled = true;
         LastOldStamina = Old;
@@ -482,7 +480,7 @@ bool FW2IntegratedScenarioTest::RunTest(const FString& Parameters)
     CPPCore::StaminaSystem Stamina(100.0f);
     Stamina.SetRegenRate(10.0f);
 
-    // 시나리오 1: 전투 - 데미지 받음
+    // 전투 - 데미지 받음
     UE_LOG(LogTemp, Log, TEXT("\n=== 시나리오 1: 전투 시작 ==="));
     PROFILE_BOOKMARK("Scenario_CombatStart");
     
@@ -490,7 +488,7 @@ bool FW2IntegratedScenarioTest::RunTest(const FString& Parameters)
     TestEqual(TEXT("전투 후 체력"), Health.GetCurrentHealth(), 60);
     UE_LOG(LogTemp, Warning, TEXT("적에게 공격받음! 데미지: -40, 남은 체력: %d/100"), Health.GetCurrentHealth());
 
-    // 시나리오 2: 도망 - 스프린트 (3초)
+    // 도망 - 스프린트 (3초)
     UE_LOG(LogTemp, Log, TEXT("\n=== 시나리오 2: 스프린트로 도망 ==="));
     PROFILE_BOOKMARK("Scenario_Sprint");
     
@@ -503,7 +501,7 @@ bool FW2IntegratedScenarioTest::RunTest(const FString& Parameters)
     TestEqual(TEXT("스프린트 후 스태미나"), Stamina.GetCurrentStamina(), 55.0f);
     UE_LOG(LogTemp, Warning, TEXT("안전 지대 도착! 남은 스태미나: %.1f/100.0"), Stamina.GetCurrentStamina());
 
-    // 시나리오 3: 안전 지대 - 스태미나 회복
+    // 안전 지대 - 스태미나 회복
     UE_LOG(LogTemp, Log, TEXT("\n=== 시나리오 3: 안전 지대에서 회복 ==="));
     PROFILE_BOOKMARK("Scenario_StaminaRegen");
     
@@ -520,7 +518,7 @@ bool FW2IntegratedScenarioTest::RunTest(const FString& Parameters)
     TestEqual(TEXT("회복 완료"), Stamina.GetCurrentStamina(), 100.0f);
     UE_LOG(LogTemp, Warning, TEXT("스태미나 완전 회복! 현재: %.1f/100.0"), Stamina.GetCurrentStamina());
 
-    // 시나리오 4: 힐링 아이템 발견
+    // 힐링 아이템 발견
     UE_LOG(LogTemp, Log, TEXT("\n=== 시나리오 4: 힐링 아이템 사용 ==="));
     PROFILE_BOOKMARK("Scenario_Healing");
     
