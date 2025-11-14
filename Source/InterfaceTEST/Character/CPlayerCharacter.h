@@ -140,5 +140,7 @@ private:
     // ============== Core 기능 (약참조)====================
     TUniquePtr<CPPCore::PlayerCharacterCore> CharacterCore;
     TUniquePtr<FUnrealCharacterController> CharacterController;
-	
+
+    // ============== 성능 로그 타이머 (2초 간격) ====================
+    float LastPerformanceLogTime;
 };

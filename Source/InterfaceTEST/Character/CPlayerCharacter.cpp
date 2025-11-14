@@ -88,7 +88,14 @@ void ACPlayerCharacter::BeginPlay()
         CharacterCore->GetStaminaSystem()->OnStaminaDepleted = [this]() { OnCore_StaminaDepleted(); };
     }
 
-   
+    // 로그 타이머 초기화
+    LastPerformanceLogTime = 0.0f;
+
+    UE_LOG(LogTemp, Warning, TEXT("========================================"));
+    UE_LOG(LogTemp, Warning, TEXT("[Character] 초기화 완료"));
+    UE_LOG(LogTemp, Log, TEXT("[Character] 체력: %d/%d"), GetCurrentHealth(), GetMaxHealth());
+    UE_LOG(LogTemp, Log, TEXT("[Character] 스태미나: %.1f/%.1f"), GetCurrentStamina(), GetMaxStamina());
+    UE_LOG(LogTemp, Warning, TEXT("========================================"));
 }
 
 void ACPlayerCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -132,15 +139,44 @@ void ACPlayerCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 void ACPlayerCharacter::Tick(float DeltaTime)
 {
-    //프로파일링
+    // W2: Tick 단계 프로파일링 시작
     PROFILE_SCOPE_CHARACTER_TICK();
+    PROFILE_SCOPE_W2_TICK();
+    PROFILE_W2_BOOKMARK_TICK_START();
+    
+    // ========== 성능 로그 간격 제어 (2초마다) ==========
+    static float PerformanceLogInterval = 2.0f;  // 2초 간격
+    float CurrentTime = GetWorld()->GetTimeSeconds();
+    bool bShouldLogPerformance = (CurrentTime - LastPerformanceLogTime) >= PerformanceLogInterval;
+    
+    double TickStartTime = 0.0;
+    if (bShouldLogPerformance)
+    {
+        TickStartTime = FPlatformTime::Seconds();
+    }
+    // ==================================================
     
     Super::Tick(DeltaTime);
 
-    if (!CharacterCore.IsValid())
+    // 버그 수정: IsValid()가 true일 때 Update 호출
+    if (CharacterCore.IsValid())
     {
+        PROFILE_SCOPE_CORE_UPDATE();
         CharacterCore->Update(DeltaTime);
     }
+
+    // ========== 2초마다만 성능 로그 출력 ==========
+    if (bShouldLogPerformance)
+    {
+        double TickEndTime = FPlatformTime::Seconds();
+        double TickDuration = (TickEndTime - TickStartTime) * 1000.0;
+        
+        UE_LOG(LogTemp, Log, TEXT("[W2 Performance] Character Tick: %.3f ms"), TickDuration);
+        LastPerformanceLogTime = CurrentTime;
+    }
+    // =============================================
+    
+    PROFILE_W2_BOOKMARK_TICK_END();
 }
 
 void ACPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -179,42 +215,63 @@ void ACPlayerCharacter::Input_Look(const FInputActionValue& Value)
 
 void ACPlayerCharacter::Input_Jump(const FInputActionValue& Value)
 {
+    // W2: Physics 단계 (점프는 물리 연산)
     PROFILE_SCOPE_JUMP();
+    PROFILE_SCOPE_W2_PHYSICS();
+    PROFILE_W2_BOOKMARK_PHYSICS_START();
     
     if (!CharacterCore) return;
+    
+    UE_LOG(LogTemp, Log, TEXT("[Input] 점프 시도"));
+    PROFILE_W2_EVENT_JUMP();
     CharacterCore->HandleJumpInput();
 
-    PROFILE_BOOKMARK("PlayerJumped"); 
+    PROFILE_BOOKMARK("PlayerJumped");
+    PROFILE_W2_BOOKMARK_PHYSICS_END();
 }
 
 void ACPlayerCharacter::Input_Sprint_Started(const FInputActionValue& Value)
 {
     if (!CharacterCore) return;
+    
+    UE_LOG(LogTemp, Log, TEXT("[Input] 스프린트 시작 입력"));
+    PROFILE_W2_EVENT_SPRINT_START();
     CharacterCore->HandleSprintStart();
 }
 
 void ACPlayerCharacter::Input_Sprint_Completed(const FInputActionValue& Value)
 {
     if (!CharacterCore) return;
-    CharacterCore->HandleSprintEnd();
     
+    UE_LOG(LogTemp, Log, TEXT("[Input] 스프린트 종료 입력"));
+    PROFILE_W2_EVENT_SPRINT_END();
+    CharacterCore->HandleSprintEnd();
 }
 
 void ACPlayerCharacter::Input_Zoom_Started(const FInputActionValue& Value)
 {
     if (!CharacterCore) return;
+    
+    UE_LOG(LogTemp, Log, TEXT("[Input] 줌 시작 입력"));
+    PROFILE_W2_EVENT_ZOOM_CHANGED(true);
     CharacterCore->HandleZoomStart();
 }
 
 void ACPlayerCharacter::Input_Zoom_Completed(const FInputActionValue& Value)
 {
     if (!CharacterCore) return;
+    
+    UE_LOG(LogTemp, Log, TEXT("[Input] 줌 종료 입력"));
+    PROFILE_W2_EVENT_ZOOM_CHANGED(false);
     CharacterCore->HandleZoomEnd();
 }
 
 void ACPlayerCharacter::Input_Attack(const FInputActionValue& Value)
 {
     if (!CharacterCore) return;
+    
+    UE_LOG(LogTemp, Log, TEXT("[Input] 공격 입력"));
+    PROFILE_W2_EVENT_ATTACK();
     CharacterCore->HandleAttackInput();
 }
 
@@ -227,62 +284,158 @@ void ACPlayerCharacter::OnCore_SprintStateChanged(bool bIsSprinting)
 {
     // 카메라 렉 업데이트(여기에서 FOV, 카메라 설정 또는 스프린트 효과 트리거 조정가능함.)
     CameraBoom->bEnableCameraLag = !bIsSprinting;
+    
+    UE_LOG(LogTemp, Warning, TEXT("========================================"));
+    UE_LOG(LogTemp, Warning, TEXT("[Sprint] 상태 변화: %s"), bIsSprinting ? TEXT("시작") : TEXT("종료"));
+    UE_LOG(LogTemp, Log, TEXT("[Sprint] 현재 스태미나: %.1f/%.1f"), GetCurrentStamina(), GetMaxStamina());
+    UE_LOG(LogTemp, Warning, TEXT("========================================"));
 }
 
 void ACPlayerCharacter::OnCore_ZoomStateChanged(bool bIsZooming)
 {
+    // W2: PostProcess 단계 (FOV 변경은 후처리 효과)
+    PROFILE_SCOPE_FOV();
+    PROFILE_SCOPE_W2_POSTPROCESS();
+    PROFILE_W2_BOOKMARK_POSTPROCESS_START();
+    
     // 줌용 카메라 업데이트(위에와 마찬가지)
     CameraBoom->bEnableCameraLag = !bIsZooming;
+    
+    // FOV 로그 추가
+    if (FollowCamera)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("========================================"));
+        UE_LOG(LogTemp, Warning, TEXT("[Zoom] 상태 변화: %s"), bIsZooming ? TEXT("ON") : TEXT("OFF"));
+        UE_LOG(LogTemp, Log, TEXT("[Zoom] 현재 FOV: %.1f"), FollowCamera->FieldOfView);
+        UE_LOG(LogTemp, Warning, TEXT("========================================"));
+    }
+    
+    PROFILE_W2_BOOKMARK_POSTPROCESS_END();
 }
 
 void ACPlayerCharacter::OnCore_Jumped()
 {
     PROFILE_BOOKMARK("JumpAnimationStart"); 
-    //점프 애니메이션이나 파티클 
+    
+    UE_LOG(LogTemp, Log, TEXT("[Jump] 점프 실행!"));
 }
 
 void ACPlayerCharacter::OnCore_Landed()
 {
-    //땅 밟았을때 애니메이션이나 이펙트
+    UE_LOG(LogTemp, Log, TEXT("[Jump] 착지!"));
 }
 
 void ACPlayerCharacter::OnCore_Attack()
 {
-    PROFILE_SCOPE_ATTACK();  
+    // W2: Combat 단계
+    PROFILE_SCOPE_ATTACK();
+    PROFILE_SCOPE_W2_COMBAT();
+    PROFILE_W2_BOOKMARK_COMBAT_START();
+    
     PROFILE_BOOKMARK("PlayerAttacked");
+    
+    UE_LOG(LogTemp, Log, TEXT("[Combat] 공격 실행!"));
+    
+    PROFILE_W2_BOOKMARK_COMBAT_END();
 }
 
 void ACPlayerCharacter::OnCore_HealthChanged(int32 OldHealth, int32 NewHealth)
 {
     PROFILE_SCOPE_HEALTH(); 
+    PROFILE_W2_EVENT_HEALTH_CHANGED(OldHealth, NewHealth);
+    
+    // 변화가 없으면 리턴 (로그 스팸 방지)
+    if (OldHealth == NewHealth)
+    {
+        return;
+    }
+    
+    // Stat 업데이트 (실시간 반영)
+    PROFILE_UPDATE_CURRENT_HEALTH(NewHealth);
     
     if (NewHealth < OldHealth)
     {
-        PROFILE_BOOKMARK("PlayerDamaged"); 
+        // 데미지 받음
+        PROFILE_SCOPE_DAMAGE();  // 데미지 전용 Stat
+        PROFILE_BOOKMARK("PlayerDamaged");
+        PROFILE_W2_EVENT_DAMAGE_TAKEN();
+        
+        int32 DamageAmount = OldHealth - NewHealth;
+        PROFILE_UPDATE_DAMAGE(DamageAmount);  // ⭐ 누적 데미지 Stat
+        
+        UE_LOG(LogTemp, Warning, TEXT("========================================"));
+        UE_LOG(LogTemp, Warning, TEXT("[Health] 데미지를 받음!"));
+        UE_LOG(LogTemp, Log, TEXT("[Health] 체력 변화: %d -> %d (-%d)"), 
+            OldHealth, NewHealth, DamageAmount);
+        UE_LOG(LogTemp, Warning, TEXT("========================================"));
     }
+    else  // NewHealth > OldHealth
+    {
+        // 힐링
+        PROFILE_SCOPE_HEAL();  // 힐링 전용 Stat
+        
+        int32 HealAmount = NewHealth - OldHealth;
+        PROFILE_UPDATE_HEALING(HealAmount);  //누적 힐링 Stat
+        
+        UE_LOG(LogTemp, Warning, TEXT("========================================"));
+        UE_LOG(LogTemp, Warning, TEXT("[Health] 힐링!"));
+        UE_LOG(LogTemp, Log, TEXT("[Health] 체력 변화: %d -> %d (+%d)"), 
+            OldHealth, NewHealth, HealAmount);
+        UE_LOG(LogTemp, Warning, TEXT("========================================"));
+    }
+    
     OnHealthChanged.Broadcast(OldHealth, NewHealth);
 }
 
+// ========== OnCore_Death 수정 ==========
 void ACPlayerCharacter::OnCore_Death()
 {
+    PROFILE_SCOPE_DEATH();  // 사망 전용 Stat
+    PROFILE_UPDATE_DEATH_COUNT();  // 사망 횟수 카운트
+    
     // 죽음 관련 핸들
     GetCharacterMovement()->DisableMovement();
     GetMesh()->SetSimulatePhysics(true);
     GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    
+    UE_LOG(LogTemp, Error, TEXT("========================================"));
+    UE_LOG(LogTemp, Error, TEXT("[Health] 캐릭터 사망!"));
+    UE_LOG(LogTemp, Error, TEXT("[Health] 최종 체력: 0"));
+    UE_LOG(LogTemp, Error, TEXT("========================================"));
     
     OnDeath.Broadcast();
 }
 
 void ACPlayerCharacter::OnCore_StaminaChanged(float OldStamina, float NewStamina)
 {
+    // 변화량이 미미한 경우 로그 스팸 방지 (회복 시)
+    float Delta = FMath::Abs(NewStamina - OldStamina);
+    
+    if (Delta > 0.5f) // 0.5 이상 변화할 때만 로그
+    {
+        if (NewStamina < OldStamina)
+        {
+            UE_LOG(LogTemp, Log, TEXT("[Stamina] 소모: %.1f -> %.1f (-%.1f)"), OldStamina, NewStamina, Delta);
+        }
+        else
+        {
+            UE_LOG(LogTemp, Log, TEXT("[Stamina] 회복: %.1f -> %.1f (+%.1f)"), OldStamina, NewStamina, Delta);
+        }
+    }
+    
     OnStaminaChanged.Broadcast(OldStamina, NewStamina);
 }
 
 void ACPlayerCharacter::OnCore_StaminaDepleted()
 {
-    PROFILE_BOOKMARK("StaminaDepleted"); 
+    PROFILE_BOOKMARK("StaminaDepleted");
+    PROFILE_W2_EVENT_STAMINA_DEPLETED();
     
-    UE_LOG(LogTemp, Warning, TEXT("Stamina 고갈됨!"));}
+    UE_LOG(LogTemp, Warning, TEXT("========================================"));
+    UE_LOG(LogTemp, Warning, TEXT("[Stamina] 스태미나 고갈!"));
+    UE_LOG(LogTemp, Log, TEXT("[Stamina] 현재 스태미나: 0.0/%.1f"), GetMaxStamina());
+    UE_LOG(LogTemp, Warning, TEXT("========================================"));
+}
 
 bool ACPlayerCharacter::IsSprinting() const
 {
@@ -321,6 +474,8 @@ float ACPlayerCharacter::GetMaxStamina() const
 
 void ACPlayerCharacter::ApplyDamage(float Amount)
 {
+    PROFILE_SCOPE_DAMAGE();  
+    
     if (CharacterCore && CharacterCore->GetHealthSystem())
     {
         CharacterCore->GetHealthSystem()->TakeDamage(Amount);
@@ -329,6 +484,8 @@ void ACPlayerCharacter::ApplyDamage(float Amount)
 
 void ACPlayerCharacter::Heal(int32 Amount)
 {
+    PROFILE_SCOPE_HEAL();
+    
     if (CharacterCore && CharacterCore->GetHealthSystem())
     {
         CharacterCore->GetHealthSystem()->Heal(Amount);
