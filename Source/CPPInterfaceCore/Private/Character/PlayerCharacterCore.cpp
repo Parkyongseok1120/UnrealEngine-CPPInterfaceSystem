@@ -1,6 +1,5 @@
 ﻿#include "Character/PlayerCharacterCore.h"
 #include <algorithm>
-#include <ThirdParty/OpenColorIO/Deploy/OpenColorIO-2.2.0/include/OpenColorIO/OpenColorIO.h>
 
 using namespace std;
 

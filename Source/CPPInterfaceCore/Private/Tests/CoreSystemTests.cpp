@@ -6,7 +6,7 @@
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     FStaminaSystemTest,
     "CPPCore.Systems.StaminaSystem",
-    EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::ProductFilter
+    EAutomationTestFlags::CommandletContext | EAutomationTestFlags::ProductFilter
 )
 
 bool FStaminaSystemTest::RunTest(const FString& Parameters)
@@ -70,7 +70,7 @@ bool FStaminaSystemTest::RunTest(const FString& Parameters)
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     FJumpSystemTest,
     "CPPCore.Systems.JumpSystem",
-    EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::ProductFilter
+    EAutomationTestFlags::CommandletContext | EAutomationTestFlags::ProductFilter
 )
 
 bool FJumpSystemTest::RunTest(const FString& Parameters)
@@ -124,7 +124,7 @@ bool FJumpSystemTest::RunTest(const FString& Parameters)
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     FFOVZoomSystemTest,
     "CPPCore.Systems.FOVZoomSystem",
-    EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::ProductFilter
+    EAutomationTestFlags::CommandletContext | EAutomationTestFlags::ProductFilter
 )
 
 bool FFOVZoomSystemTest::RunTest(const FString& Parameters)

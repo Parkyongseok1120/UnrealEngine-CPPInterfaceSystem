@@ -13,7 +13,7 @@
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     FUnrealControllerIntegrationTest,
     "InterfaceTEST.Integration.UnrealController",
-    EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::ProductFilter
+    EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter
 )
 
 bool FUnrealControllerIntegrationTest::RunTest(const FString& Parameters)
@@ -75,7 +75,7 @@ bool FUnrealControllerIntegrationTest::RunTest(const FString& Parameters)
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     FDataAssetConversionTest,
     "InterfaceTEST.Integration.DataAssetConversion",
-    EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::ProductFilter
+    EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter
 )
 
 bool FDataAssetConversionTest::RunTest(const FString& Parameters)
@@ -109,7 +109,7 @@ bool FDataAssetConversionTest::RunTest(const FString& Parameters)
 IMPLEMENT_COMPLEX_AUTOMATION_TEST(
     FFullIntegrationTest,
     "InterfaceTEST.Integration.FullFlow",
-    EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::ProductFilter
+    EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter
 )
 
 void FFullIntegrationTest::GetTests(TArray<FString>& OutBeautifiedNames, TArray<FString>& OutTestCommands) const
@@ -165,7 +165,7 @@ bool FFullIntegrationTest::RunTest(const FString& Parameters)
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     FHealthSystemUnitTest,
     "InterfaceTEST.Unit.W2.HealthSystem",
-    EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::ProductFilter
+    EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter
 )
 
 bool FHealthSystemUnitTest::RunTest(const FString& Parameters)
@@ -257,7 +257,7 @@ bool FHealthSystemUnitTest::RunTest(const FString& Parameters)
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     FStaminaSystemUnitTest,
     "InterfaceTEST.Unit.W2.StaminaSystem",
-    EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::ProductFilter
+    EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter
 )
 
 bool FStaminaSystemUnitTest::RunTest(const FString& Parameters)
@@ -351,7 +351,7 @@ bool FStaminaSystemUnitTest::RunTest(const FString& Parameters)
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     FFOVChangeUnitTest,
     "InterfaceTEST.Unit.W2.FOVSystem",
-    EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::ProductFilter
+    EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter
 )
 
 bool FFOVChangeUnitTest::RunTest(const FString& Parameters)
@@ -465,7 +465,7 @@ bool FFOVChangeUnitTest::RunTest(const FString& Parameters)
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
     FW2IntegratedScenarioTest,
     "InterfaceTEST.Integration.W2.CompleteScenario",
-    EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::ProductFilter
+    EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter
 )
 
 bool FW2IntegratedScenarioTest::RunTest(const FString& Parameters)

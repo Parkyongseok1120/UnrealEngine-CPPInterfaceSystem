@@ -29,7 +29,7 @@ public class CPPInterfaceCore : ModuleRules
         }
         
         bEnableExceptions = true;
-        CppStandard = CppStandardVersion.Cpp17; 
+        CppStandard = CppStandardVersion.Cpp20; 
         
         PublicIncludePaths.Add(ModuleDirectory + "/Public");
         PrivateIncludePaths.Add(ModuleDirectory + "/Private");
